@@ -72,11 +72,40 @@ app.get('/', (req, res) => {
 
   })
 
-  // app.use("/movies", async function (req, res) {
-  //     let responsePayload;
-  //   try {const unwatchedMoviesSelectQuery = "select * from movies where watched = false order by id desc"; 
-  //      responsePayload = await client.execute(unwatchedMoviesSelectQuery); }
-  //     catch (error) { 
-  //     console.log({ error }); 
-  //   responsePayload = null;  }  return res.json(responseDataAdapter(responsePayload));
-  //  });
+
+    //step 6 ORDERED BY  date ( year )
+      app.get('/movies/read/by-date',(req,res) => {
+       let sort= movies.sort((a, b) => {
+       let da = new Date(a.year),
+          db = new Date(b.year);
+         return da - db;
+       });
+     res.status(200).json({status:200, data:sort});
+    })
+
+
+    // step 6 ORDERED BY  top rating 
+      app.get('/movies/read/by-rating',(req,res) => {
+       let sortedbyrating = movies.sort(
+       (p1, p2) => (p1.rating < p2.rating) ? 1 : (p1.rating> p2.rating) ? -1 : 0);
+       res.status(200).json({status:200, data:sortedbyrating});
+         });
+  
+
+       //step 6 ORDERED BY  title 
+         app.get('/movies/read/by-title',(req,res) => {
+         let sortbytitle=movies.sort((a, b) => {
+         let ta = a.title.toLowerCase(),
+          tb = b.title.toLowerCase();
+  
+           if (ta < tb) {
+          return -1;
+         }
+          if (ta > tb) {
+          return 1;
+        }
+        return 0;
+       });
+       res.status(200).json({status:200, data:sortbytitle});
+       })
+
