@@ -109,3 +109,23 @@ app.get('/', (req, res) => {
        res.status(200).json({status:200, data:sortbytitle});
        })
 
+       // step 7 
+       app.get('/movies/read/id', (req, res) => {
+        if (req.query.id) {
+          const index = parseInt(req.query.id);
+          const movie = getMovie(index);
+      
+          if (movie) {
+            res.status(200).json({ status: 200, data: movie });
+          } else 
+            res.status(404).json({ status: 404, message: `The movie ${index} does not exist`, error: true });
+      }});
+      
+      function getMovie(index) {
+        const adjustedIndex = index - 1;
+        if (adjustedIndex >= 0 && adjustedIndex < movies.length) {
+          return movies[adjustedIndex];
+        } else {
+          return null; 
+        }
+      }
