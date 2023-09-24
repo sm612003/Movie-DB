@@ -184,23 +184,23 @@ app.get('/', (req, res) => {
           });
           
 
-         // step 10 
+          // step 10  with only change title 
           //http://localhost:3000/movies/update/1?title=souhad
 
-          app.get('/movies/update/:id', (req, res) => {
-            let Id=parseInt(req.params.id); //req.params.id is used to capture the movie ID from the URL.
-            let newTitle = req.query.title; // get the new title from the query parameter
-            const indexUpdate = Id - 1;
+  //         app.get('/movies/update/:id', (req, res) => {
+  //           let Id=parseInt(req.params.id); //req.params.id is used to capture the movie ID from the URL.
+  //           let newTitle = req.query.title; // get the new title from the query parameter
+  //           const indexUpdate = Id - 1;
 
-         if (indexUpdate >= 0 && indexUpdate < movies.length) {
-         // Update the movie's title
-        movies[indexUpdate].title = newTitle;
+  //        if (indexUpdate >= 0 && indexUpdate < movies.length) {
+  //        // Update the movie's title
+  //       movies[indexUpdate].title = newTitle;
 
-        res.status(200).json({ status: 200, message: `Movie with ID ${Id} updated.`, data: movies });
-        } else {
-        res.status(404).json({ status: 404, message: `Movie with ID ${Id} not found.`, error: true });
-   }
-  });
+  //       res.status(200).json({ status: 200, message: `Movie with ID ${Id} updated.`, data: movies });
+  //       } else {
+  //       res.status(404).json({ status: 404, message: `Movie with ID ${Id} not found.`, error: true });
+  //  }
+  // });
 
   //step 10 
   //http://localhost:3000/movies/update/1?title=souhad&rating=5
