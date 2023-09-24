@@ -1,4 +1,4 @@
-// step 2
+//step 2
 const express = require('express')
 const app = express()
 app.listen(3000)
@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
 
     res.status(200).send(`${time}`);
 
-    // res.json({status:200,data:time});
+    res.json({status:200,data:time});
 
   })
  // step 4 
@@ -126,9 +126,8 @@ app.get('/', (req, res) => {
         }
       }
 
-          //  step 8  // http://localhost:3000/movies/add?title=souhad&year=2003&rating=8
+          // step 8  // http://localhost:3000/movies/add?title=souhad&year=2003&rating=8
           app.get("/movies/add", (req, res) => {
-            // /movies/add?title=Red notice&year=2000&rating=8
             let { title, year, rating } = req.query;
             let newMovie = {
                     title: title,
@@ -184,23 +183,7 @@ app.get('/', (req, res) => {
           });
           
 
-          // step 10  with only change title 
-          //http://localhost:3000/movies/update/1?title=souhad
 
-  //         app.get('/movies/update/:id', (req, res) => {
-  //           let Id=parseInt(req.params.id); //req.params.id is used to capture the movie ID from the URL.
-  //           let newTitle = req.query.title; // get the new title from the query parameter
-  //           const indexUpdate = Id - 1;
-
-  //        if (indexUpdate >= 0 && indexUpdate < movies.length) {
-  //        // Update the movie's title
-  //       movies[indexUpdate].title = newTitle;
-
-  //       res.status(200).json({ status: 200, message: `Movie with ID ${Id} updated.`, data: movies });
-  //       } else {
-  //       res.status(404).json({ status: 404, message: `Movie with ID ${Id} not found.`, error: true });
-  //  }
-  // });
 
   //step 10 
   //http://localhost:3000/movies/update/1?title=souhad&rating=5
@@ -232,4 +215,104 @@ app.get('/', (req, res) => {
       res.status(404).json({ status: 404, message: `Movie with ID ${Id} not found.`, error: true });
     }
   });
+
+
+ //step 11 with post ( create in step 8)
+
+// const express = require("express");
+const bodyParser = require("body-parser");
+// const app = express();
+
+app.use(bodyParser.json());
+// Route to create a new movie using POST
+app.post("/movies/add", (req, res) => {
+  const { title, year, rating } = req.body; //instead of using req.query we have to use req.body with post 
+
+  if (!title || !year) {
+    res.status(400).json({
+      status: 400,
+      error: true,
+      message: "You must provide a title and a year to create a movie.",
+    });
+    return;
+  }
+
+  if (year.length !== 4 || isNaN(parseInt(year))) {
+    res.status(400).json({
+      status: 400,
+      error: true,
+      message: "Year should be a four-digit number.",
+    });
+    return;
+  }
+
+  const newMovie = {
+    title: title,
+    year: year,
+    rating: parseFloat(rating) || 4,
+  };
+
+  movies.push(newMovie);
+
+  res.status(201).json({
+    status: 201,
+    error: false,
+    message: "Movie created successfully.",
+    movie: newMovie,
+  });
+});
+
+// Route to read the list of movies
+app.get("/movies/read", (req, res) => {
+  res.json(movies);
+});
+
+
+
+//step 11 with delete ( step 9)
+app.delete('/movies/delete/:id', (req, res) => {
+  const idToDelete = parseInt(req.params.id);
+
   
+  // Find the index of the movie to delete
+  const indexToDelete = idToDelete - 1;
+
+  if (indexToDelete >= 0 && indexToDelete < movies.length) {
+    // Use splice to remove the movie from the array
+    movies.splice(indexToDelete, 1);
+
+    res.status(200).json({ status: 200, message: `Movie with ID ${idToDelete} deleted.`, data:movies});
+  } else {
+    res.status(404).json({ status: 404, message: `Movie with ID ${idToDelete} not found.`, error: true });
+  }
+});
+     //step 11 with put ( update in step 10)
+
+     app.put('/movies/update/:id', (req, res) => {
+      const Id = parseInt(req.params.id); 
+      const indexToUpdate = Id - 1;
+      const newmovie = req.body;
+    
+      if (indexToUpdate >= 0 && indexToUpdate < movies.length) {
+        const movieToUpdate = movies[indexToUpdate];
+
+        // Update the movie's title if provided
+        if (newmovie.title) {
+          movieToUpdate.title = newmovie.title;
+        }
+    
+        // Update the movie's rating if provided
+        if (newmovie.rating) {
+          movieToUpdate.rating = newmovie.rating;
+        }
+    
+        // Update the movie's year if provided
+        if (newmovie.year) {
+          movieToUpdate.year = newmovie.year;
+        }
+    
+        res.status(200).json({ status: 200, data: movies });
+      } else {
+        res.status(404).json({ status: 404, message: `Movie with ID ${Id} not found.`, error: true });
+      }
+    });
