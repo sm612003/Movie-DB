@@ -183,3 +183,53 @@ app.get('/', (req, res) => {
             }
           });
           
+
+         // step 10 
+          //http://localhost:3000/movies/update/1?title=souhad
+
+          app.get('/movies/update/:id', (req, res) => {
+            let Id=parseInt(req.params.id); //req.params.id is used to capture the movie ID from the URL.
+            let newTitle = req.query.title; // get the new title from the query parameter
+            const indexUpdate = Id - 1;
+
+         if (indexUpdate >= 0 && indexUpdate < movies.length) {
+         // Update the movie's title
+        movies[indexUpdate].title = newTitle;
+
+        res.status(200).json({ status: 200, message: `Movie with ID ${Id} updated.`, data: movies });
+        } else {
+        res.status(404).json({ status: 404, message: `Movie with ID ${Id} not found.`, error: true });
+   }
+  });
+
+  //step 10 
+  //http://localhost:3000/movies/update/1?title=souhad&rating=5
+  app.get('/movies/update/:id', (req, res) => {
+    const Id = req.params.id;
+    const newTitle = req.query.title;
+    const newRating = req.query.rating;
+    const newYear = req.query.year;
+    const indexToUpdate = Id - 1;
+  
+    if (indexToUpdate >= 0 && indexToUpdate < movies.length) {
+      // Update the movie's title if provided
+      if (newTitle) {
+        movies[indexToUpdate].title = newTitle;
+      }
+  
+      // Update the movie's rating if provided
+      if (newRating) {
+        movies[indexToUpdate].rating = newRating;
+      }
+  
+      // Update the movie's year if provided
+      if (newYear) {
+        movies[indexToUpdate].year=newYear;
+      }
+  
+      res.status(200).json({ status: 200, data: movies });
+    } else {
+      res.status(404).json({ status: 404, message: `Movie with ID ${Id} not found.`, error: true });
+    }
+  });
+  
