@@ -1,7 +1,9 @@
 //step 2
 const express = require('express')
+const Movie=require('../Movie-DB/model/movies')
 const app = express()
 app.listen(3000)
+app.use(express.json())
 
 app.get('/', (req, res) => {
     res.send('OK');
@@ -69,7 +71,7 @@ app.get('/', (req, res) => {
   })
 
 
-    //step 6 ORDERED BY  date ( year )
+   // step 6 ORDERED BY  date ( year )
       app.get('/movies/read/by-date',(req,res) => {
        let sort= movies.sort((a, b) => {
        let da = new Date(a.year),
@@ -316,3 +318,140 @@ app.delete('/movies/delete/:id', (req, res) => {
         res.status(404).json({ status: 404, message: `Movie with ID ${Id} not found.`, error: true });
       }
     });
+
+
+ //Step 12 with mongodb 
+//post  data inside mongo db
+app.post ("/post",async(req,res)=>{
+   console.log("inside post function")
+   const data = new Movie ({
+    title:req.body.title,
+    year:req.body.year,
+    rating:req.body.rating
+
+   });
+   const val = await data.save(); 
+   res.json(val);
+})
+app.get("/movies/read",async(req,res)=>{
+  try {
+    const newone = await Movie.find({});
+    res.status(200).json(newone);
+    console.log("the list of movies")
+  } catch (error) {
+    res.status(500).json({message:error.message})
+  }
+})
+
+
+//delete movies 
+
+app.delete("/movies/delete/:id",async(req,res)=>{
+  try {
+    await Movie.findByIdAndDelete(req.params.id);
+    res.status(204).json({status:'success',data:null});
+  } catch (error) {
+    res.status(404).json({status:'fail',message:error.message});
+  }
+})
+
+//update 
+app.patch("/update/:id",async(req,res)=>{
+  try {
+    const Id=req.params.id;
+     const update = await Movie.findByIdAndUpdate({_id:Id},req.body,{new:true});
+     console.log(update);
+    res.status(204).json({update});
+  } catch (e) {
+    console.log(e.message)
+    res.status(500).json({error:'something went wrong '});
+  }
+})
+
+
+//  step 6 ( search ) list of movies ORDERED BY DATE
+app.get("/movies/read/by-date",async(req,res)=>{
+  try {
+    const orderbydate = await Movie.find({}).sort({year:'asc'});
+    res.status(200).json(orderbydate);
+    console.log("the list of movies")
+  } catch (error) {
+    res.status(500).json({message:error.message})
+  }
+})
+
+
+
+// step 6 ( search ) list of movies ORDERED BY RATING 
+app.get("/movies/read/by-rating",async(req,res)=>{
+  try {
+    const orderbyrating = await Movie.find({}).sort({rating:'desc'});
+    res.status(200).json(orderbyrating);
+    console.log("the list of movies")
+  } catch (error) {
+    res.status(500).json({message:error.message})
+  }
+})
+
+// step 6 ( search ) list of movies ORDERED BY title
+
+app.get("/movies/read/by-title",async(req,res)=>{
+  try {
+    const sortbytitle = await Movie.find({}).sort({title:'asc'});
+    res.status(200).json(sortbytitle);
+    console.log("the list of movies")
+  } catch (error) {
+    res.status(500).json({message:error.message})
+  }
+})
+
+//  where <MOVIE> is the movie defined by the provided <ID
+
+app.get("/movies/read/id/:id", async (req, res) => {
+  try {
+    const movieid = req.params.id;
+    const movie = await Movie.findById(movieid);
+
+    if (!movie) {
+      return res.status(404).json({ status: 404, error: true, message: `The movie with ID ${movieid} does not exist` });
+    }
+
+    res.status(200).json({ status: 200, data: movie });
+    console.log(`Movie with ID ${movieid} has been retrieved`);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+
+
+// the movie designed by <ID> change all If a user provides any of title, rating, or year,
+app.patch("/movies/update/:id", async (req, res) => {
+  try {
+    const movieId = req.params.id;
+    const updateData = {};
+
+    // Check if title is provided in the query parameters
+    if (req.query.title) {
+      updateData.title = req.query.title;
+    }
+
+    // Check if rating is provided in the query parameters
+    if (req.query.rating) {
+      updateData.rating = req.query.rating;
+    }
+
+    // Use findByIdAndUpdate to update the movie with the provided data
+    const updatedMovie = await Movie.findByIdAndUpdate(movieId, updateData, { new: true });
+
+    if (!updatedMovie) {
+      return res.status(404).json({ status: 404, error: true, message: `The movie with ID ${movieId} does not exist` });
+    }
+
+    res.status(204).json({ status: 204, data: updatedMovie });
+    console.log(`Movie with ID ${movieId} has been updated with new title and/or rating`);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
